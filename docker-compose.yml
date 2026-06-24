@@ -3,50 +3,45 @@ services:
   mariadb:
     image: mariadb:11
     container_name: mariadb
-    restart: always
+
     environment:
-      MARIADB_ROOT_PASSWORD: linux1234
-      MARIADB_DATABASE: studentdb
-    ports:
-      - "3306:3306"
+      MARIADB_ROOT_PASSWORD: root1234
+      MARIADB_DATABASE: student_db
+      MARIADB_USER: diwakar
+      MARIADB_PASSWORD: linux7107
+
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
 
   backend:
-    build:
-      context: ./backend
-    container_name: backend
-    restart: always
+    build: ./backend
+    container_name: backendcn
+
+    environment:
+      DB_URL: jdbc:mariadb://mariadb:3306/student_db
+      DB_USER: diwakar
+      DB_PASSWORD: linux7107
+
     depends_on:
       - mariadb
-    environment:
-      DB_HOST: mariadb
-      DB_PORT: 3306
-      DB_NAME: studentdb
-      DB_USERNAME: root
-      DB_PASSWORD: linux1234
-    ports:
-      - "8080:8080"
 
   frontend:
-    build:
-      context: ./frontend
+    build: ./frontend
     container_name: frontend
-    restart: always
-    ports:
-      - "3000:80"
+
+    depends_on:
+      - backend
 
   nginx:
-    image: nginx:alpine
+    build: ./nginx
     container_name: nginx
-    restart: always
+
+    ports:
+      - "80:80"
+
     depends_on:
       - frontend
       - backend
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
 volumes:
-  mariadb_data:
+  mariadb-data:
